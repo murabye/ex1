@@ -54,11 +54,12 @@ namespace ex1
                     del = Min(count) + 1;                       // удаляемое число
                     sum += matrix[del - 1] * matrix[del + 1];   // вычисление кол-ва операций
                     matrix.RemoveAt(del);
-                    count.RemoveAt(del);
-                    count[del - 1] = matrix[del-1] * matrix[del + 1];
+                    count.RemoveAt(del-1);
+                    if (count.Count >= del)count[del - 1] = matrix[del - 1] * matrix[del + 1];
+                    if (count.Count >= del - 1 && del > 1) count[del - 2] = matrix[del - 2] * matrix[del];
                 }
 
-                sum += matrix[0] * matrix[2];                   // вычисление последней операции
+                sum += count[0];                   // вычисление последней операции
 
                 // вывод ответа
                 Console.WriteLine("Ans: " + sum);
