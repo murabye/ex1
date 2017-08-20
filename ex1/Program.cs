@@ -9,41 +9,60 @@ namespace ex1
 {
     internal class Program
     {
-        private static int[] unite(int[] first, int[] end, out int price)
+        private static int Min(List<int> array)
         {
-            // метод, объединяющий два блока
-            // return   - объединенный блок 
-            // price    - кол-во операций
-            // first    - первый блок
-            // end      - второй
+            // поиск минимума в массиве
+            // ans - число само, 
+            // ind - его индекс
+            var ind = 0;
+            var ans = array[0];
+            var length = array.Count;
 
-            var ans = new int[2];
-            ans[0] = first[0];
-            ans[1] = end[1];
+            // поиск
+            for (var i = 1; i < length; i++)
+            {
+                if (array[i] >= ans) continue;
+                ans = array[i];
+                ind = i;
+            }
 
-            price = ans[0] * ans[1];
-            return ans;
+            return ind;
         }
-
-
         private static void Main()
         {
-            // задача сводится к стандартной в дискретке задаче
-            // о порядке перемножения матриц (расставления скобок, по сути)
-            // использовано динамическое двумерное программирование
-
-            // инициализация кол-ва блоков и выделение памяти
-            var num = Ask.Num("Введите количество блоков: ", 1, 100);
-            var matrix = new List<int[]>();
-            
-            // ввод всех блоков
-            for (var i = 0; i < num; i++)
+            while (true)
             {
-                var cur = new int[2];
-                cur[0] = Ask.Num("Введите число m: ", 0, 100);
-                cur[1] = Ask.Num("Введите число k: ", 0, 100);
+                // обработать искл ситуевины, когда num = 1!
+                // инициализация кол-ва блоков и выделение памяти
+                var num = Ask.Num("Введите количество блоков: ", 1, 100);
+                
+                var matrix = new List<int>(num+1);              // храним блоки
+                var count = new List<int>(num-1);               // храним результаты вычислений
+                var sum = 0;                                    // число технологических операций
+                int del;                                        // соединяемый блок
 
-                matrix.Add(cur);
+                // ввод всех блоков
+                for (var i = 0; i <= num; i++)
+                    matrix.Add(Ask.Num("Введите число: ", 0, 100));
+
+                // первый расчет
+                for (var i = 0; i < num-1; i++)
+                    count.Add(matrix[i] * matrix[i + 2]);
+
+                while (matrix.Count > 3)
+                {
+                    del = Min(count) + 1;                       // удаляемое число
+                    sum += matrix[del - 1] * matrix[del + 1];   // вычисление кол-ва операций
+                    matrix.RemoveAt(del);
+                    count.RemoveAt(del);
+                    count[del - 1] = matrix[del-1] * matrix[del + 1];
+                }
+
+                sum += matrix[0] * matrix[2];                   // вычисление последней операции
+
+                // вывод ответа
+                Console.WriteLine("Ans: " + sum);
+                OC.Stay();
             }
         }
     }
