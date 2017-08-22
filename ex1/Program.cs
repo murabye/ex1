@@ -9,60 +9,44 @@ namespace ex1
 {
     internal class Program
     {
-        private static int Min(List<int> array)
-        {
-            // поиск минимума в массиве
-            // ans - число само, 
-            // ind - его индекс
-            var ind = 0;
-            var ans = array[0];
-            var length = array.Count;
-
-            // поиск
-            for (var i = 1; i < length; i++)
-            {
-                if (array[i] >= ans) continue;
-                ans = array[i];
-                ind = i;
-            }
-
-            return ind;
-        }
         private static void Main()
         {
             while (true)
             {
-                // обработать искл ситуевины, когда num = 1!
+                // решение через динамическое программирование
+
                 // инициализация кол-ва блоков и выделение памяти
                 var num = Ask.Num("Введите количество блоков: ", 1, 100);
-                
-                var matrix = new List<int>(num+1);              // храним блоки
-                var count = new List<int>(num-1);               // храним результаты вычислений
-                var sum = 0;                                    // число технологических операций
-                int del;                                        // соединяемый блок
 
-                // ввод всех блоков
-                for (var i = 0; i <= num; i++)
-                    matrix.Add(Ask.Num("Введите число: ", 0, 100));
+                int[] leftParams  = new int[num],           // левый параметр
+                      rightParams = new int[num];           // правый параметр
+                var cost = new int[num, num];               // массив стоимостей соединения блоков
 
-                // первый расчет
-                for (var i = 0; i < num-1; i++)
-                    count.Add(matrix[i] * matrix[i + 2]);
-
-                while (matrix.Count > 3)
+                // ввод блоков
+                for (int i = 0; i < num; i++)
                 {
-                    del = Min(count) + 1;                       // удаляемое число
-                    sum += matrix[del - 1] * matrix[del + 1];   // вычисление кол-ва операций
-                    matrix.RemoveAt(del);
-                    count.RemoveAt(del-1);
-                    if (count.Count >= del)count[del - 1] = matrix[del - 1] * matrix[del + 1];
-                    if (count.Count >= del - 1 && del > 1) count[del - 2] = matrix[del - 2] * matrix[del];
+                    leftParams[i] = Ask.Num("Введите левый параметр: ");
+                    rightParams[i] = Ask.Num("Введите правый параметр: ");
                 }
 
-                sum += count[0];                   // вычисление последней операции
+                // 
+                for (int length = 1; length <= num; length++)
+                {
+                    for (int left = 0; left + length - 1 < num; left++)
+                    {
+                        var right = left + length - 1;
+                        if (length == 1) cost[left, right] = 0;
+                        else
+                        {
+                            var min = int.MaxValue;
+                            for (int k = left; k < right; k++)
+                                min = Math.Min(min, cost[left, k] + cost[k + 1, right]);
+                            cost[left, right] = min + leftParams[left] * rightParams[right];
+                         }
+                    }
+                }
 
-                // вывод ответа
-                Console.WriteLine("Ans: " + sum);
+                Console.WriteLine("Ans: " + cost[0, num-1]);
                 OC.Stay();
             }
         }
